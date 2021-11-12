@@ -7,7 +7,7 @@ pd.set_option('display.width', None)
 
 #统计商品利润
 def find_check_result(sheetName):
-    f = pd.ExcelFile('.\商品別売上_20211101-20211101.xlsx')
+    f = pd.ExcelFile(r'.\tempFile.xlsx')
     output_result = []
     check_result = read_check_result(sheetName) #统计商品成本
     df = f.parse(0) #使用第一个工作薄
@@ -21,9 +21,10 @@ def find_check_result(sheetName):
     
     for index, row in df[0:].iterrows():  # 从第二行开始加载数据。
         rowLength = rowLength + 1
-        if(str(row[11]).isdigit()) and not pd.isnull(df.loc[index, df_list[11]]):  # 判断バーコード是否为数字，是否非null,nan
+        if not pd.isnull(df.loc[index, df_list[11]]) and (str(round(row[11])).isdigit()):  # 判断バーコード是否为数字，是否非null,nan
+            
             for check_item in check_result: #判断バーコード是否相等
-                if check_item[0] == str(row[11]):
+                if check_item[0] == str(round(row[11])):
                     print(index, row[0], row[11], check_item[1], row[3], row[7], int(row[3]) - (int(check_item[1]) * int(row[7])))
                     output_result.append((index, check_item[1], str(int(row[3]) - (int(check_item[1]) * int(row[7])))))
                     tempList.append(index)
@@ -57,7 +58,7 @@ def write_excel(output_result, rowLength):
     result, lastRow = output_result, rowLength
     total = 0
     for name in wb.sheetnames:
-        print(name)
+        # print(name)
         for output in result:
             total = total + int(output[2])
             wb[name].cell(row = 1, column = 13).value = "仕入値（税込）"
