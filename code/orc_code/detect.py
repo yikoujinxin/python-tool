@@ -33,9 +33,10 @@ For more information, the documentation at
 https://cloud.google.com/vision/docs.
 """
 
+import os
 import argparse
 
-
+input_path = '' 
 # [START vision_face_detection]
 def detect_faces(path):
     """Detects faces in an image."""
@@ -361,13 +362,19 @@ def detect_text(path):
     texts = response.text_annotations
     print('Texts:')
 
-    for text in texts:
-        print('\n"{}"'.format(text.description))
+    input_filename = os.path.basename(input_path).split('.')[0]
+    output_filename = './response/' + input_filename +'.txt'
+    with open(output_filename,'w', encoding='utf-8') as f:
+        f.write(texts[0].description)
+        # for text in texts:
+        #     print('\n"{}"'.format(text))
+        #     print('\n"{}"'.format(text.description))
+        #     f.write(text.description)
+        #     f.write('\n')
+            # vertices = (['({},{})'.format(vertex.x, vertex.y)
+            #             for vertex in text.bounding_poly.vertices])
 
-        vertices = (['({},{})'.format(vertex.x, vertex.y)
-                    for vertex in text.bounding_poly.vertices])
-
-        print('bounds: {}'.format(','.join(vertices)))
+            # print('bounds: {}'.format(','.join(vertices)))
 
     if response.error.message:
         raise Exception(
@@ -927,7 +934,6 @@ def localize_objects_uri(uri):
             print(' - ({}, {})'.format(vertex.x, vertex.y))
 # [END vision_localize_objects_gcs]
 
-
 def run_local(args):
     if args.command == 'faces':
         detect_faces(args.path)
@@ -1097,6 +1103,7 @@ if __name__ == '__main__':
     object_localization_uri_parser.add_argument('uri')
 
     args = parser.parse_args()
+    input_path = args.path
 
     if 'uri' in args.command:
         run_uri(args)
