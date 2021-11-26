@@ -15,7 +15,7 @@ tools = pyocr.get_available_tools()
 tool = tools[0]
 
 # 3.原稿画像の読み込み
-img_org = Image.open("./code_image/9.png")
+img_org = Image.open("./code_image/1.png")
 
 # 4.ＯＣＲ実行
 builder = pyocr.builders.TextBuilder(tesseract_layout=7)
@@ -26,7 +26,12 @@ print("----------------")
 exe_path = os.path.join("C:","Program Files","Tesseract-OCR")
 sys.path.append(exe_path)
 # print(sys.path)
-sys_cmd = "tesseract.exe ./code_image/9.png ./result3 -l jpn+eng"
+sys_cmd = "tesseract.exe ./code_image/1.png ./result3 -l eng -c tessedit_char_whitelist=0123456789"
 eng_result=os.system(sys_cmd)
 
 print(eng_result)
+
+sys_cmd2 = "tesseract.exe ./code_image/1.png ./result3 -l jpn -c tessedit_char_whitelist=0123456789"
+eng_result2=os.system(sys_cmd2)
+
+print(eng_result2)
