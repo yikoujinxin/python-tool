@@ -13,8 +13,6 @@ from pdfminer.converter import PDFPageAggregator
 
 from PIL import Image
 
-
-
 def extract_images(document):
     # Create a PDF resource manager object that stores shared resources.
     rsrcmgr = PDFResourceManager()

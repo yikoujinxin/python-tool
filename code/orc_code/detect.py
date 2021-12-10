@@ -360,21 +360,11 @@ def detect_text(path):
 
     response = client.text_detection(image=image)
     texts = response.text_annotations
-    print('Texts:')
 
     input_filename = os.path.basename(input_path).split('.')[0]
     output_filename = './response/' + input_filename +'.txt'
     with open(output_filename,'w', encoding='utf-8') as f:
         f.write(texts[0].description)
-        # for text in texts:
-        #     print('\n"{}"'.format(text))
-        #     print('\n"{}"'.format(text.description))
-        #     f.write(text.description)
-        #     f.write('\n')
-            # vertices = (['({},{})'.format(vertex.x, vertex.y)
-            #             for vertex in text.bounding_poly.vertices])
-
-            # print('bounds: {}'.format(','.join(vertices)))
 
     if response.error.message:
         raise Exception(

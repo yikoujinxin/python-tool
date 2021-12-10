@@ -4,6 +4,8 @@ output it to plain text, html, xml or tags."""
 import argparse
 import logging
 import sys
+# sys.path.append("C:/Users/liang/AppData/Local/Programs/Python/Python37/Lib/site-packages")
+sys.path.append("C:/history/python/code/pdfminer.six-develop/")
 from typing import Any, Container, Iterable, List, Optional, Union
 
 import pdfminer.high_level
