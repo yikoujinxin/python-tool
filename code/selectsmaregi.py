@@ -1,5 +1,6 @@
 import io
 import re
+import sys
 import pandas as pd
 # import msoffcrypto
 # import json
@@ -78,8 +79,7 @@ def read_good_names():
     data_frame.to_csv("C:\\pdf\\selectgoods.csv",index=False,sep=",",encoding='cp932')
     # return check_result_list
 
-def insert_smaregi_prices():
-    file_path = 'C:\\pdf\\发注数据\\更新数据\\商品データ(20211213121810).xlsx'
+def insert_smaregi_prices(file_path):
     insert_smaregi_list = []
     insert_categories_list = []
     of = pd.ExcelFile(file_path)
@@ -121,8 +121,9 @@ def write_excel(output_write_result):
     wb.save(output_file_path)
 
 if __name__ == '__main__':
+    file_path = sys.argv[1]
     # output_write_result = find_check_result()
     # write_excel(output_write_result)
     # read_good_names()
-    insert_smaregi_prices()
+    insert_smaregi_prices(file_path)
 
