@@ -90,7 +90,7 @@ if __name__ == '__main__':
     # print("------------------------------------------------")
     # update_summary_jancode(file_path, db, cursor)
     print("=================================================")
-    # cal_summary_income(db, cursor)
+    cal_summary_income(db, cursor)
     print("#################################################")
-    cal_summary_price(db, cursor)
+    # cal_summary_price(db, cursor)
 
