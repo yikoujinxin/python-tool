@@ -2,16 +2,10 @@ import io
 import re
 import sys
 import pandas as pd
-import MySQLdb
 # import msoffcrypto
 # import json
 from openpyxl import load_workbook
 pd.set_option('display.width', None)
-
-host="toa-cloud-test.cjrkfow6klcg.ap-northeast-1.rds.amazonaws.com"
-user="shop_auction"
-password="xjM2VxxIJZGHhlImnNt2yNntYGSLZBeG"
-dbname="shop_auction"
 
 def find_check_result():
     f = pd.ExcelFile('C:\history\python\東京PCR検査記録表.xlsx')
@@ -85,64 +79,26 @@ def read_good_names():
     data_frame.to_csv("C:\\pdf\\selectgoods.csv",index=False,sep=",",encoding='cp932')
     # return check_result_list
 
-def insert_priority_smaregi_prices(file_path, db, cursor):
-    of = pd.ExcelFile(file_path)
-    odf = of.parse(sheet_name = "振分表②")
-    odf_list = list(odf)
-    for index, row in odf[0:1462].iterrows():
-        if(row[13]) != 0 and not pd.isnull(odf.loc[index, odf_list[13]]):
-            print(odf.loc[index, odf_list[6]],odf.loc[index, odf_list[8]],int(odf.loc[index, odf_list[14]]))
-            insert_cmd = "insert into dv_clone_smaregi_tbl(commodity_name,commodity_jancode,smaregi_price,remark) values(\""
-            insert_cmd = insert_cmd + str(odf.loc[index, odf_list[6]])+"\",\""+str(odf.loc[index, odf_list[8]])+"\",\""+str(odf.loc[index, odf_list[14]])+"\",\"優先価格を使用しました。\");"
-            insert_cmd = insert_cmd
-            cursor.execute(insert_cmd)
-            db.commit()
-def insert_smaregi_prices(file_path, db, cursor):
+def insert_smaregi_prices(file_path):
     insert_smaregi_list = []
-    insert_zero_smaregi_list = []
+    insert_categories_list = []
     of = pd.ExcelFile(file_path)
     for name in of.sheet_names:
         odf = of.parse(sheet_name = name)
         odf_list = list(odf)
         for index, row in odf[0:].iterrows():
-            select_clone_smaregi_cmd = "SELECT count(1) as cnt FROM dv_clone_smaregi_tbl WHERE commodity_jancode=\"" + str(row[3]) + "\";"
-            cursor.execute(select_clone_smaregi_cmd)
-            cursor.fetchall()
-            for (cnt) in cursor:
-                if int(cnt[0]) == 0:
-                    if(row[6]) == 0 or pd.isnull(odf.loc[index, odf_list[6]]):
-                        select_cmd = "SELECT summary_price FROM dv_summary_tbl WHERE commodity_jancode=\"" + str(row[3]) + "\";"
-                        # print("select_cmd: ", select_cmd)
-                        summary_price_count = cursor.execute(select_cmd)
-                        summary_price_total = 0
-                        cursor.fetchall()
-                        for (summary_price) in cursor:
-                            if summary_price[0] is not None:
-                                summary_price_total += float(summary_price[0])
-                            else:
-                                print("Nonetype: ", summary_price[0])
-                        if int(summary_price_count) > 0 and int(summary_price_total) > 0:
-                            average_price = float(summary_price_total / summary_price_count)
-                            print("summary_price: ", summary_price_total, summary_price_count, average_price, str(odf.loc[index, odf_list[3]]))
-                            insert_zero_smaregi_list.append(["insert into dv_smaregi_tbl(commodity_name,commodity_jancode,smaregi_price,remark) values(\""+
-                                str(odf.loc[index, odf_list[4]])+"\",\""+str(odf.loc[index, odf_list[3]])+"\",\""+
-                                str(average_price)+"\",\"入力た価格を使用して、購入価格が見つかりませんでした\");"
-                            ])
-                        else:
-                            insert_zero_smaregi_list.append(["insert into dv_smaregi_tbl(commodity_name,commodity_jancode,smaregi_price,remark) values(\""+
-                                    str(odf.loc[index, odf_list[4]])+"\",\""+str(odf.loc[index, odf_list[3]])+"\",\""+
-                                    str(odf.loc[index, odf_list[5]])+"\",\"販売価格の計算を使用して、購入価格が見つかりませんでした\");"
-                                ])
-                    else:
-                        insert_smaregi_list.append(["insert into dv_smaregi_tbl(commodity_name,commodity_jancode,smaregi_price,remark) values(\""+
-                                str(odf.loc[index, odf_list[4]])+"\",\""+str(odf.loc[index, odf_list[3]])+"\",\""+
-                                str(odf.loc[index, odf_list[6]])+"\",\"\");"
-                            ])
-    data_frame2= pd.DataFrame(insert_zero_smaregi_list)  
-    data_frame2.to_csv("C:\\pdf\\insert_zero_smaregi_list.csv",index=False,sep=",",encoding='cp932')
-
+            if(row[6]) == 0 or pd.isnull(odf.loc[index, odf_list[6]]):
+                insert_smaregi_list.append(["insert into dv_smaregi_tbl(commodity_name,commodity_jancode,smaregi_price,remark) values('"+
+                        str(odf.loc[index, odf_list[4]])+"','"+str(odf.loc[index, odf_list[3]])+"','"+
+                        str(odf.loc[index, odf_list[5]])+"','販売価格の計算を使用して、購入価格が見つかりませんでした');"
+                    ])
+            else:
+                insert_smaregi_list.append(["insert into dv_smaregi_tbl(commodity_name,commodity_jancode,smaregi_price,remark) values('"+
+                        str(odf.loc[index, odf_list[4]])+"','"+str(odf.loc[index, odf_list[3]])+"','"+
+                        str(odf.loc[index, odf_list[6]])+"','');"
+                    ])
     data_frame= pd.DataFrame(insert_smaregi_list)  
-    data_frame.to_csv("C:\\pdf\\insert_smaregi_sql.csv",index=False,sep=",",encoding='cp932')
+    data_frame.to_csv("C:\\pdf\\发注数据\\更新数据\\insert_smaregi_sql.csv",index=False,sep=",",encoding='cp932')
 
 def write_excel(output_write_result):
     output_file_path = 'C:\history\python\結果確認表.xlsx'
@@ -169,10 +125,5 @@ if __name__ == '__main__':
     # output_write_result = find_check_result()
     # write_excel(output_write_result)
     # read_good_names()
-    db=MySQLdb.connect(host,user,password,dbname,charset="utf8")
-    cursor=db.cursor()
-    # priority_file = "C:\pdf\priority_file.xlsx"
-    # insert_priority_smaregi_prices(priority_file, db, cursor)
-    insert_smaregi_prices(file_path, db, cursor)
-    
+    insert_smaregi_prices(file_path)
 
