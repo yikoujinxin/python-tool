@@ -42,7 +42,7 @@ def rename_store_names(file_path):
         files.append(new_name)
         n+=1
     print("zipName: ", zip_name)
-    file2Zip(zip_name, files)
+    # file2Zip(zip_name, files)
 
 if __name__ == '__main__':
     file_path = sys.argv[1]
