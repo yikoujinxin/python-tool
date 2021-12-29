@@ -60,26 +60,28 @@ def insert_smaregi1_prices(file_path, dir_path, file_path2, db, cursor):
                         insert_smaregi_list.append(insert_preparation_cmd+"\n")
             else:
                 insert_zero_smaregi_list.append(str(odf.loc[index, odf_list[4]])+","+str(odf.loc[index, odf_list[3]])+","+str(odf.loc[index, odf_list[6]])+",1")
-    
-    with open(dir_path + "/" + "insert_zero_smaregi1.csv", mode="w",encoding='cp932',errors="ignore") as f:
-        for ele in insert_zero_smaregi_list:
-            f.write(ele + '\n')
 
     with open(dir_path + "/" + "insert_smaregi1.sql", mode="w",encoding='cp932',errors="ignore") as f:
         f.writelines(insert_smaregi_list)   
     for cmd in insert_smaregi_list:     
         cursor.execute(cmd)
         db.commit()
+    
+    with open(dir_path + "/" + "insert_zero_smaregi1.csv", mode="w",encoding='cp932',errors="ignore") as f:
+        for ele in insert_zero_smaregi_list:
+            f.write(ele + '\n')
 
 if __name__ == '__main__':
     #python insertSmaregi.py C:\pdf smaregi1.xlsx smaregi2.xlsx smaregi3.xlsx smaregi4.xlsx
-    dir_path = sys.argv[1]
-    filePath1 = dir_path + "/" + sys.argv[2]
-    filePath2 = dir_path + "/" + sys.argv[3]
-
+    dir_path = input("输入文件读取地址: ")
+    filePath1 = input("输入Smaregi文件名: ")
+    filePath2 = input("输入处理文件名: ")
+    file_path_smaregi = dir_path + "/" + filePath1
+    file_path_exception = dir_path + "/" + filePath2
+    print("------ 导入smaregi商品数据中 ------- ")
     db=MySQLdb.connect(host,user,password,dbname,charset="utf8")
     cursor=db.cursor()
-    insert_smaregi1_prices(filePath1, dir_path, filePath2, db, cursor)
+    insert_smaregi1_prices(file_path_smaregi, dir_path, file_path_exception, db, cursor)
     print("------ smaregi导出商品数据 ------- 完了")
     
 
