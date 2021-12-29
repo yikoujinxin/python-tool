@@ -11,7 +11,7 @@ user="shop_auction"
 password="xjM2VxxIJZGHhlImnNt2yNntYGSLZBeG"
 dbname="shop_auction"
 
-def insert_smaregi1_prices(file_path, dir_path, file_path2):
+def insert_smaregi1_prices(file_path, dir_path, file_path2, db, cursor):
     insert_smaregi_list = []
     insert_zero_smaregi_list = []
     insert_zero_smaregi_list.append("商品名"+","+"JANコード"+","+"価格"+","+"種類")
@@ -37,9 +37,9 @@ def insert_smaregi1_prices(file_path, dir_path, file_path2):
     odf_priority_list = list(odf_priority)
 
     for index_priority, row_priority in odf_priority[0:].iterrows():
-        if(row_priority[3]) != 0:
+        if(row_priority[3]) != 0 and not pd.isnull(odf_priority.loc[index_priority, odf_priority_list[3]]) :
             insert_priority_cmd = "insert into dv_smaregi_tbl(commodity_name,commodity_jancode,smaregi_price,remark) values(\""
-            insert_priority_cmd = insert_priority_cmd + str(odf_priority.loc[index_priority, odf_priority_list[1]])+"\",\""+str(odf_priority.loc[index_priority, odf_priority_list[0]])+"\",\""+str(odf_priority.loc[index_priority, odf_priority_list[3]])+"\",\"1\");"
+            insert_priority_cmd = insert_priority_cmd + str(odf_priority.loc[index_priority, odf_priority_list[1]]).replace("\"", "")+"\",\""+str(odf_priority.loc[index_priority, odf_priority_list[0]])+"\",\""+str(odf_priority.loc[index_priority, odf_priority_list[3]])+"\",\"1\");"
             print("原価优先商品: ", insert_priority_cmd)
             insert_smaregi_list.append(insert_priority_cmd+"\n")
 
@@ -48,14 +48,14 @@ def insert_smaregi1_prices(file_path, dir_path, file_path2):
         odf_list = list(odf)
         for index, row in odf[0:].iterrows():
             insert_cmd = "insert into dv_smaregi_tbl(commodity_name,commodity_jancode,smaregi_price,remark) values(\""
-            insert_cmd = insert_cmd + str(odf.loc[index, odf_list[4]])+"\",\""+str(odf.loc[index, odf_list[3]])+"\",\""+str(odf.loc[index, odf_list[6]])+"\",\"1\");"
+            insert_cmd = insert_cmd + str(odf.loc[index, odf_list[4]]).replace("\"", "")+"\",\""+str(odf.loc[index, odf_list[3]])+"\",\""+str(odf.loc[index, odf_list[6]])+"\",\"1\");"
             if(row[6]) != 0 and not pd.isnull(odf.loc[index, odf_list[6]]) and not pd.isnull(odf.loc[index, odf_list[3]]) and str(odf.loc[index, odf_list[3]]) not in priority_data_array:
                 insert_smaregi_list.append(insert_cmd+"\n")
             elif str(odf.loc[index, odf_list[3]]) in preparation_data_array:
                 for index_preparation, row_preparation in odf_preparation[0:].iterrows():
-                    if(row_preparation[3]) != 0 and str(odf_preparation.loc[index_preparation, odf_preparation_list[0]]) == str(odf.loc[index, odf_list[3]]):
+                    if(row_preparation[3]) != 0 and not pd.isnull(odf_preparation.loc[index_preparation, odf_preparation_list[3]]) and str(odf_preparation.loc[index_preparation, odf_preparation_list[0]]) == str(odf.loc[index, odf_list[3]]):
                         insert_preparation_cmd = "insert into dv_smaregi_tbl(commodity_name,commodity_jancode,smaregi_price,remark) values(\""
-                        insert_preparation_cmd = insert_preparation_cmd + str(odf_preparation.loc[index_preparation, odf_preparation_list[1]])+"\",\""+str(odf_preparation.loc[index_preparation, odf_preparation_list[0]])+"\",\""+str(odf_preparation.loc[index_preparation, odf_preparation_list[3]])+"\",\"1\");"
+                        insert_preparation_cmd = insert_preparation_cmd + str(odf_preparation.loc[index_preparation, odf_preparation_list[1]]).replace("\"", "")+"\",\""+str(odf_preparation.loc[index_preparation, odf_preparation_list[0]])+"\",\""+str(odf_preparation.loc[index_preparation, odf_preparation_list[3]])+"\",\"1\");"
                         print("原価異常商品: ", insert_preparation_cmd)
                         insert_smaregi_list.append(insert_preparation_cmd+"\n")
             else:
@@ -65,8 +65,11 @@ def insert_smaregi1_prices(file_path, dir_path, file_path2):
         for ele in insert_zero_smaregi_list:
             f.write(ele + '\n')
 
-    with open(dir_path + "/" + "insert_smaregi1.csv", mode="w",encoding='cp932',errors="ignore") as f:
-        f.writelines(insert_smaregi_list)
+    with open(dir_path + "/" + "insert_smaregi1.sql", mode="w",encoding='cp932',errors="ignore") as f:
+        f.writelines(insert_smaregi_list)   
+    for cmd in insert_smaregi_list:     
+        cursor.execute(cmd)
+        db.commit()
 
 if __name__ == '__main__':
     #python insertSmaregi.py C:\pdf smaregi1.xlsx smaregi2.xlsx smaregi3.xlsx smaregi4.xlsx
@@ -76,7 +79,7 @@ if __name__ == '__main__':
 
     db=MySQLdb.connect(host,user,password,dbname,charset="utf8")
     cursor=db.cursor()
-    insert_smaregi1_prices(filePath1, dir_path, filePath2)
+    insert_smaregi1_prices(filePath1, dir_path, filePath2, db, cursor)
     print("------ smaregi导出商品数据 ------- 完了")
     
 
