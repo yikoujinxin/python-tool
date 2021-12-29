@@ -46,9 +46,5 @@ def rename_store_names(file_path):
 
 if __name__ == '__main__':
     file_path = sys.argv[1]
-    # output_write_result = find_check_result()
-    # write_excel(output_write_result)
-    # read_good_names()
-    # select_store_names(file_path)
     rename_store_names(file_path)
 
