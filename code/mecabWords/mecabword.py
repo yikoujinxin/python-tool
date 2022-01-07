@@ -2,7 +2,7 @@ import MeCab
 import pandas as pd
 
 def extract_words(file_path):
-    file_in = open(file_path)
+    file_in = open(file_path,'r', encoding='utf8')
     f_line = file_in.read()
     mecab_tagger = MeCab.Tagger("-Ochasen")
     result=mecab_tagger.parse(f_line)
