@@ -2,6 +2,7 @@ import MeCab
 import pandas as pd
 
 def extract_words(file_path):
+    file_name = getFileNameWithoutExtension(file_path)
     file_in = open(file_path,'r', encoding='utf8')
     f_line = file_in.read()
     mecab_tagger = MeCab.Tagger("-Ochasen")
@@ -29,7 +30,10 @@ def extract_words(file_path):
     df =pd.DataFrame({"fre":word_dict,'pro':word_pro,'sub':word_sub})
     df=df[df.fre>1]
     df=df.sort_values(by=['fre'],ascending=False)
-    df.to_csv('extract_words.csv')
+    df.to_csv(file_name+'.csv')
+
+def getFileNameWithoutExtension(path):
+  return path.split('\\').pop().split('/').pop().rsplit('.', 1)[0]
 
 if __name__ == '__main__':
     file_path = input("输入文件读取地址: ")
